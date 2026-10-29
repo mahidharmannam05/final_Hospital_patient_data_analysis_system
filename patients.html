@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Patients{% endblock %}
+{% block content %}
+<div class="page-head reveal">
+  <h1>👥 <span class="grad-text">Patients</span></h1>
+  <p>Register new patients and browse existing records.</p>
+</div>
+
+<div class="card static reveal" style="--i:1">
+  <h2>➕ Add Patient</h2>
+  <form method="POST" class="inline">
+    <label>Full name
+      <input type="text" name="patient_name" maxlength="100" placeholder="e.g. Priya Sharma" required>
+    </label>
+    <label>Address
+      <input type="text" name="address" maxlength="255" placeholder="Area, City" style="min-width:260px">
+    </label>
+    <label>Age band
+      <select name="age_band" required>
+        <option>0-17</option><option>18-29</option><option>30-44</option>
+        <option>45-59</option><option>60+</option>
+      </select>
+    </label>
+    <label>Gender
+      <select name="gender">
+        <option value="">Not specified</option>
+        <option>Male</option><option>Female</option><option>Other</option>
+      </select>
+    </label>
+    <button type="submit" class="btn">Add patient</button>
+  </form>
+</div>
+
+<div class="card static reveal" style="--i:2">
+  <div class="toolbar">
+    <h2>All Patients <span class="count">{{ patients|length }}</span></h2>
+    <input type="search" class="search" placeholder="Search name, address…" data-filter="#ptable" data-empty="pempty">
+  </div>
+  <div class="table-wrap">
+    <table id="ptable">
+      <thead><tr><th>ID</th><th>Patient</th><th>Address</th><th>Age band</th><th>Gender</th></tr></thead>
+      <tbody>
+        {% for p in patients %}
+        <tr class="data" style="--r: {{ [loop.index0, 14]|min }}">
+          <td class="muted">#{{ p.patient_id }}</td>
+          <td><div class="person"><span class="av av{{ p.patient_id % 5 }}">{{ p.patient_name[:1]|upper }}</span>{{ p.patient_name }}</div></td>
+          <td>{{ p.address or "—" }}</td>
+          <td><span class="badge plain">{{ p.age_band }}</span></td>
+          <td>{{ p.gender or "—" }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="muted" style="text-align:center;padding:26px">No patients yet — add the first one above.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="empty" id="pempty">No matching patients.</div>
+  </div>
+</div>
+{% endblock %}

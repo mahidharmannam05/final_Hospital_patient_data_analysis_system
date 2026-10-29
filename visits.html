@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Visits{% endblock %}
+{% block content %}
+<div class="page-head reveal">
+  <h1>📅 <span class="grad-text">Visits</span></h1>
+  <p>Log a patient visit and review the full history.</p>
+</div>
+
+<div class="card static reveal" style="--i:1">
+  <h2>➕ Add Visit</h2>
+  <form method="POST" class="inline">
+    <label>Patient
+      <select name="patient_id" required style="min-width:250px">
+        {% for p in patients %}
+        <option value="{{ p.patient_id }}">{{ p.patient_name }} (#{{ p.patient_id }}, {{ p.age_band }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Department
+      <select name="department_id" required>
+        {% for d in departments %}
+        <option value="{{ d.department_id }}">{{ d.department_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Date
+      <input type="date" name="visit_date" required>
+    </label>
+    <label>Type
+      <select name="visit_type" required>
+        <option>Routine</option><option>Outpatient</option>
+        <option>Follow-up</option><option>Emergency</option>
+      </select>
+    </label>
+    <button type="submit" class="btn">Add visit</button>
+  </form>
+</div>
+
+<div class="card static reveal" style="--i:2">
+  <div class="toolbar">
+    <h2>All Visits <span class="count">{{ visits|length }}</span></h2>
+    <input type="search" class="search" placeholder="Search patient, department…" data-filter="#vtable" data-empty="vempty">
+  </div>
+  <div class="table-wrap">
+    <table id="vtable">
+      <thead><tr><th>ID</th><th>Date</th><th>Patient</th><th>Address</th><th>Age</th><th>Department</th><th>Type</th></tr></thead>
+      <tbody>
+        {% for v in visits %}
+        <tr class="data" style="--r: {{ [loop.index0, 14]|min }}">
+          <td class="muted">#{{ v.visit_id }}</td>
+          <td>{{ v.visit_date }}</td>
+          <td><div class="person"><span class="av av{{ v.visit_id % 5 }}">{{ v.patient_name[:1]|upper }}</span>{{ v.patient_name }}</div></td>
+          <td>{{ v.address or "—" }}</td>
+          <td><span class="badge plain">{{ v.age_band }}</span></td>
+          <td>{{ v.department_name }}</td>
+          <td><span class="badge {{ v.visit_type|lower|replace('-', '') }}">{{ v.visit_type }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="muted" style="text-align:center;padding:26px">No visits yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="empty" id="vempty">No matching visits.</div>
+  </div>
+</div>
+{% endblock %}

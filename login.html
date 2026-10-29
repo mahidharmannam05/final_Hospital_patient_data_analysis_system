@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block nav %}{% endblock %}
+{% block extra_css %}
+  .login-page { min-height: 100vh; display: grid; place-items: center; padding: 20px; }
+  .login-box { width: 100%; max-width: 410px; padding: 38px 34px; border-radius: 26px; animation: popIn .8s cubic-bezier(.2,.8,.2,1) both; }
+  .login-box:hover { transform: none; }
+  @keyframes popIn { from { opacity: 0; transform: translateY(40px) scale(.94); } to { opacity: 1; transform: none; } }
+  .login-box .logo { width: 62px; height: 62px; font-size: 30px; border-radius: 20px; margin: 0 auto 16px; animation: bob 3s ease-in-out infinite; }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  .login-box h1 { text-align: center; margin: 0; font-size: 26px; }
+  .login-box .sub { text-align: center; margin: 6px 0 26px; color: var(--muted); font-size: 14px; }
+  .login-box label { margin-bottom: 16px; }
+  .login-box input { width: 100%; min-width: 0; }
+  .login-box .btn { width: 100%; padding: 14px; font-size: 15px; margin-top: 6px; }
+  .pw { position: relative; }
+  .pw input { padding-right: 46px; }
+  .pw button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: 0; background: none; cursor: pointer; font-size: 17px; padding: 6px; }
+  .error { background: #fee2e2; color: #b91c1c; padding: 11px 14px; border-radius: 12px; margin-bottom: 16px; font-size: 13.5px; animation: shake .5s ease; }
+  @keyframes shake { 0%,100% { transform: none; } 20%,60% { transform: translateX(-8px); } 40%,80% { transform: translateX(8px); } }
+{% endblock %}
+{% block main %}
+<main class="login-page">
+  <div class="card login-box">
+    <div class="logo">✚</div>
+    <h1><span class="grad-text">MediTrack</span></h1>
+    <p class="sub">Sign in to the hospital dashboard</p>
+    {% if error %}<div class="error">⚠ {{ error }}</div>{% endif %}
+    <form method="POST">
+      <label>Username
+        <input type="text" name="username" autocomplete="username" placeholder="Enter your username" required autofocus>
+      </label>
+      <label>Password
+        <span class="pw">
+          <input type="password" name="password" id="pw" autocomplete="current-password" placeholder="Enter your password" required>
+          <button type="button" id="eye" aria-label="Show password">👁</button>
+        </span>
+      </label>
+      <button type="submit" class="btn">Login →</button>
+    </form>
+  </div>
+</main>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById('eye').addEventListener('click', function () {
+    var i = document.getElementById('pw');
+    i.type = i.type === 'password' ? 'text' : 'password';
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <h1>Welcome back <span class="wave">👋</span></h1>
+  <p>Here's what's happening at the hospital · <span id="today"></span></p>
+</section>
+
+<div class="grid kpis">
+  <div class="card kpi reveal" style="--i:1"><div class="ico i1">👥</div><div><div class="num" data-count="{{ total_patients }}">{{ total_patients }}</div><div class="lbl">Total patients</div></div></div>
+  <div class="card kpi reveal" style="--i:2"><div class="ico i2">🩺</div><div><div class="num" data-count="{{ total }}">{{ total }}</div><div class="lbl">Total visits</div></div></div>
+  {% if stats %}
+  <div class="card kpi reveal" style="--i:3"><div class="ico i3">📈</div><div><div class="num" data-count="{{ stats.mean }}">{{ stats.mean }}</div><div class="lbl">Avg visits / month</div></div></div>
+  <div class="card kpi reveal" style="--i:4"><div class="ico i4">🔥</div><div><div class="num" data-count="{{ stats.max }}">{{ stats.max }}</div><div class="lbl">Busiest month</div></div></div>
+  <div class="card kpi reveal" style="--i:5"><div class="ico i5">🌙</div><div><div class="num" data-count="{{ stats.min }}">{{ stats.min }}</div><div class="lbl">Quietest month</div></div></div>
+  {% endif %}
+</div>
+
+{% if stats %}
+<div class="card static reveal" style="--i:5">
+  <h2>🧮 Monthly visit statistics <span class="muted" style="font-weight:400;font-size:12px">(NumPy)</span></h2>
+  <div class="stat-strip">
+    <span class="chip">Mean <b>{{ stats.mean }}</b></span>
+    <span class="chip">Median <b>{{ stats.median }}</b></span>
+    <span class="chip">Max <b>{{ stats.max }}</b></span>
+    <span class="chip">Min <b>{{ stats.min }}</b></span>
+    <span class="chip">Std dev <b>{{ stats.std }}</b></span>
+  </div>
+</div>
+{% endif %}
+
+<div class="grid charts">
+  {% for key in ["dept", "monthly", "age"] %}
+  <div class="card reveal" style="--i:{{ loop.index + 5 }}">
+    {% if charts[key] %}
+      <img class="chart-img" src="data:image/png;base64,{{ charts[key] }}" alt="{{ key }} chart">
+    {% else %}
+      <p class="muted">No data for this chart yet.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card static reveal" style="--i:9">
+  <h2>🕒 Recent visits</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Patient</th><th>Address</th><th>Department</th><th>Type</th></tr></thead>
+      <tbody>
+        {% for r in recent %}
+        <tr style="--r: {{ loop.index0 }}">
+          <td>{{ r.visit_date }}</td>
+          <td><div class="person"><span class="av av{{ loop.index0 % 5 }}">{{ r.patient_name[:1]|upper }}</span>{{ r.patient_name }}</div></td>
+          <td>{{ r.address or "—" }}</td>
+          <td>{{ r.department_name }}</td>
+          <td><span class="badge {{ r.visit_type|lower|replace('-', '') }}">{{ r.visit_type }}</span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="muted" style="text-align:center;padding:24px">No visits yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="grid tables">
+  <div class="card reveal" style="--i:10">
+    <h2>🏥 By department</h2>
+    {% set mx = (departments|map(attribute='total')|max) if departments else 1 %}
+    <table><tbody>
+      {% for d in departments %}
+      <tr class="bar-row"><td>{{ d.department }}</td>
+        <td><div class="bar"><span style="--w: {{ (d.total / mx * 100) if mx else 0 }}%"></span></div></td>
+        <td class="n">{{ d.total }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+  </div>
+
+  <div class="card reveal" style="--i:11">
+    <h2>📆 By month</h2>
+    {% set mx = (monthly|map(attribute='total')|max) if monthly else 1 %}
+    <table><tbody>
+      {% for m in monthly %}
+      <tr class="bar-row"><td>{{ m.month }}</td>
+        <td><div class="bar"><span style="--w: {{ (m.total / mx * 100) if mx else 0 }}%"></span></div></td>
+        <td class="n">{{ m.total }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+  </div>
+
+  <div class="card reveal" style="--i:12">
+    <h2>🗓 Last 14 active days</h2>
+    {% set mx = (daily|map(attribute='total')|max) if daily else 1 %}
+    <table><tbody>
+      {% for d in daily %}
+      <tr class="bar-row"><td>{{ d.day }}</td>
+        <td><div class="bar"><span style="--w: {{ (d.total / mx * 100) if mx else 0 }}%"></span></div></td>
+        <td class="n">{{ d.total }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+  </div>
+
+  <div class="card reveal" style="--i:13">
+    <h2>🎂 By age band</h2>
+    {% set mx = (age|map(attribute='total')|max) if age else 1 %}
+    <table><tbody>
+      {% for a in age %}
+      <tr class="bar-row"><td>{{ a.age_band }}</td>
+        <td><div class="bar"><span style="--w: {{ (a.total / mx * 100) if mx else 0 }}%"></span></div></td>
+        <td class="n">{{ a.total }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('today').textContent =
+    new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+</script>
+{% endblock %}
